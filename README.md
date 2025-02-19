@@ -10,7 +10,6 @@ Each question's solution is organized in a separate folder within this repositor
 
 
 
-(Paste your questions here)
 
 &#x20;   1\. WAP to implement a Perceptron using numpy in Python.&#x20;
 
