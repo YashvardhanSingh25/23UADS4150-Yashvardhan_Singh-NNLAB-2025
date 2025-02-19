@@ -31,7 +31,6 @@ Bonus: Can we use this network to identify if a leaf is from MBM Campus or not?
 
 Mini Project 2: Create an Android App that captures the readings from motion sensors (accelerometer and gyroscope) in an android phone. Build a dataset using this application that contains the motion characteristics of an average person driving a two-wheeler. Build a LSTM classifier that takes any 3 second sample as input and classifies it as Kankar Road, Bitumen Road, Concrete Road, Single Speed Breaker and Multiple Speed Breakers.&#x20;
 
-Bonus: Can we use this dataset to generate alerts when a person is rash driving?
 
 Mini Project 3: Build a Video Dataset that contains short videos (max. 5 seconds) of students performing Yogasanas (atleast 6 asanas) with diverse backgrounds, ambient lighting and clothes. Train a CNN that can identify the asana being performed in the video.&#x20;
 
