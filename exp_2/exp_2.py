@@ -1,46 +1,60 @@
-# 2. Write a Program to implement the Gradient Descent algorithm for perceptron learning using numpy and Pandas.
-
+# Write A Program to implement a multi-layer perceptron (MLP) network with one hidden layer using numpy in Python. Demonstrate that it can learn the XOR Boolean function.  
 import numpy as np
-import pandas as pd
 
-class PerceptronGD:
-    def __init__(self, input_size, learning_rate=0.01, epochs=100):
-        self.weights = np.zeros(input_size + 1)  # +1 for bias
-        self.learning_rate = learning_rate
-        self.epochs = epochs
+def step_function(x):
+    return np.where(x >= 0, 1, 0)
+
+def train_xor_mlp(epochs=10000, learning_rate=0.1):
+    # XOR input and output
+    X = np.array([[0, 0], [0, 1], [1, 0], [1, 1]])
+    y = np.array([[0], [1], [1], [0]])
     
-    def activation_function(self, x):
-        return 1 if x >= 0 else 0
+    # Initialize weights and biases
+    np.random.seed(1)
+    input_neurons = 2
+    hidden_neurons = 2
+    output_neurons = 1
     
-    def predict(self, x):
-        x = np.insert(x, 0, 1)  # Insert bias term
-        return self.activation_function(np.dot(self.weights, x))
+    weights_input_hidden = np.random.uniform(-1, 1, (input_neurons, hidden_neurons))
+    bias_hidden = np.random.uniform(-1, 1, (1, hidden_neurons))
+    weights_hidden_output = np.random.uniform(-1, 1, (hidden_neurons, output_neurons))
+    bias_output = np.random.uniform(-1, 1, (1, output_neurons))
     
-    def train(self, X, y):
-        X = np.insert(X, 0, 1, axis=1)  # Insert bias term
+    # Training process
+    for _ in range(epochs):
+        # Forward pass
+        hidden_input = np.dot(X, weights_input_hidden) + bias_hidden
+        hidden_output = step_function(hidden_input)
+        final_input = np.dot(hidden_output, weights_hidden_output) + bias_output
+        final_output = step_function(final_input)
         
-        for _ in range(self.epochs):
-            gradient = np.zeros_like(self.weights)
-            for i in range(len(y)):
-                prediction = self.activation_function(np.dot(self.weights, X[i]))
-                error = y[i] - prediction
-                gradient += error * X[i]
-            self.weights += self.learning_rate * gradient / len(y)
+        # Backpropagation
+        error = y - final_output
+        d_output = error
+        
+        error_hidden = d_output.dot(weights_hidden_output.T)
+        d_hidden = error_hidden
+        
+        # Update weights and biases
+        weights_hidden_output += hidden_output.T.dot(d_output) * learning_rate
+        bias_output += np.sum(d_output, axis=0, keepdims=True) * learning_rate
+        weights_input_hidden += X.T.dot(d_hidden) * learning_rate
+        bias_hidden += np.sum(d_hidden, axis=0, keepdims=True) * learning_rate
+    
+    return weights_input_hidden, bias_hidden, weights_hidden_output, bias_output
 
-# Example usage
-if __name__ == "__main__":
-    # Training data (AND logic gate)
-    data = pd.DataFrame({
-        'x1': [0, 0, 1, 1],
-        'x2': [0, 1, 0, 1],
-        'y': [0, 0, 0, 1]
-    })
-    X = data[['x1', 'x2']].values
-    y = data['y'].values
-    
-    perceptron = PerceptronGD(input_size=2)
-    perceptron.train(X, y)
-    
-    # Testing
-    for sample in X:
-        print(f"Input: {sample}, Predicted: {perceptron.predict(sample)}")
+def predict_xor_mlp(X, weights_input_hidden, bias_hidden, weights_hidden_output, bias_output):
+    hidden_input = np.dot(X, weights_input_hidden) + bias_hidden
+    hidden_output = step_function(hidden_input)
+    final_input = np.dot(hidden_output, weights_hidden_output) + bias_output
+    final_output = step_function(final_input)
+    return final_output
+
+# Train the MLP
+weights_input_hidden, bias_hidden, weights_hidden_output, bias_output = train_xor_mlp()
+
+# Test the trained MLP
+X_test = np.array([[0, 0], [0, 1], [1, 0], [1, 1]])
+y_pred = predict_xor_mlp(X_test, weights_input_hidden, bias_hidden, weights_hidden_output, bias_output)
+
+print("Predictions:", y_pred.flatten())
