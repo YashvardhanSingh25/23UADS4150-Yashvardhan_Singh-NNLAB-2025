@@ -1,118 +1,87 @@
-# README: Implementing Perceptron Learning with Gradient Descent in Python
+# Multi-Layer Perceptron (MLP) for XOR Function
 
+## Introduction
+This project is about teaching a computer to learn the XOR function using a simple neural network called a **Multi-Layer Perceptron (MLP)**. XOR is a logic operation that follows these rules:
 
+- **0 XOR 0 = 0**
+- **0 XOR 1 = 1**
+- **1 XOR 0 = 1**
+- **1 XOR 1 = 0**
 
-## What is Gradient Descent?
-Gradient Descent is a way for the perceptron to improve its learning. It gradually adjusts the weights so that mistakes become smaller over time.
+Since XOR is not linearly separable (meaning a straight line cannot split its true and false values), we need a hidden layer in our neural network to solve it.
 
-Think of it as learning how to ride a bike—you start wobbly but get better as you practice!
+## How It Works
+Our neural network consists of:
+- **2 input neurons** (one for each input value)
+- **2 hidden neurons** (to help learn patterns)
+- **1 output neuron** (to give the final answer: 0 or 1)
 
----
-
-## How Does This Work?
-1. **Takes Inputs**: The perceptron receives inputs (like height and weight).
-2. **Applies Weights**: It multiplies each input by a weight (importance value).
-3. **Calculates the Error**: It compares its prediction with the correct answer.
-4. **Adjusts Weights Using Gradient Descent**: It updates weights slightly to reduce mistakes.
-5. **Repeats Until Learning is Complete**: It keeps adjusting until it predicts well.
-
----
+We use a **step function** as the activation function, which means that the network outputs either 0 or 1 based on whether a value is greater than or equal to 0.
 
 ## Code Explanation
-
-### Step 1: Import Required Libraries
-We use NumPy for number calculations and Pandas for handling data.
+### 1. Import Libraries
 ```python
 import numpy as np
-import pandas as pd
 ```
+We use NumPy for mathematical operations.
 
-### Step 2: Define the Perceptron Class
-This class stores:
-- **Weights** (which change over time)
-- **Learning Rate** (how fast it learns)
-- **Epochs** (how many times it trains on data)
-- **Activation Function** (how it decides outputs)
-
+### 2. Define the Step Activation Function
 ```python
-class PerceptronGD:
-    def __init__(self, input_size, learning_rate=0.01, epochs=100, activation='linear'):
-        self.weights = np.zeros(input_size + 1)  # +1 for bias
-        self.learning_rate = learning_rate
-        self.epochs = epochs
-        self.activation = activation
+def step_function(x):
+    return np.where(x >= 0, 1, 0)
 ```
+This function returns `1` if the input is `>= 0` and `0` otherwise.
 
-### Step 3: Activation Function
-This function decides if an output should be **ON (1)** or **OFF (0)**.
+### 3. Train the Neural Network
 ```python
-    def activation_function(self, x):
-        if self.activation == 'linear':
-            return x
-        elif self.activation == 'sigmoid':
-            return 1 / (1 + np.exp(-x))
-        else:
-            return 1 if x >= 0 else 0
+def train_xor_mlp(epochs=10000, learning_rate=0.1):
 ```
+- **epochs=10000**: The number of times the network learns from the data.
+- **learning_rate=0.1**: Determines how much the network updates its knowledge each step.
 
-### Step 4: Prediction Function
-This function takes an input, calculates the weighted sum, and applies the activation function.
+#### a. Define the XOR Input and Output
 ```python
-    def predict(self, x):
-        x = np.insert(x, 0, 1)  # Insert bias term
-        return self.activation_function(np.dot(self.weights, x))
+X = np.array([[0, 0], [0, 1], [1, 0], [1, 1]])
+y = np.array([[0], [1], [1], [0]])
 ```
+These are the four possible inputs and their correct outputs.
 
-### Step 5: Training Function (Using Gradient Descent!)
-The perceptron learns by adjusting weights based on errors.
+#### b. Initialize Weights and Biases
+We randomly assign values to weights and biases at the beginning.
+
+#### c. Forward Pass (Prediction Step)
+Each layer processes the input using matrix multiplication and passes it forward.
+
+#### d. Backpropagation (Learning Step)
+The error is calculated, and the network updates its weights to improve performance.
+
+### 4. Make Predictions
 ```python
-    def train(self, X, y):
-        X = np.insert(X, 0, 1, axis=1)  # Insert bias term
-        for _ in range(self.epochs):
-            gradient = np.zeros_like(self.weights)
-            for i in range(len(y)):
-                prediction = self.activation_function(np.dot(self.weights, X[i]))
-                error = y[i] - prediction
-                gradient += error * X[i]
-            self.weights += self.learning_rate * gradient / len(y)
+def predict_xor_mlp(X, weights_input_hidden, bias_hidden, weights_hidden_output, bias_output):
 ```
+This function takes new inputs and predicts their outputs using the trained network.
 
-### Step 6: Running the Perceptron on Example Data
-We train the perceptron using a dataset and check its predictions.
+### 5. Train and Test the Network
 ```python
-if __name__ == "__main__":
-    data = pd.DataFrame({
-        'x1': [1, 2, 3, 4, 5],
-        'x2': [2, 3, 4, 5, 6],
-        'y': [2.2, 2.8, 3.6, 4.5, 5.1]
-    })
-    X = data[['x1', 'x2']].values
-    y = data['y'].values
-    
-    perceptron = PerceptronGD(input_size=2, activation='linear')
-    perceptron.train(X, y)
-    
-    print("Predictions:")
-    for sample in X:
-        print(f"Input: {sample}, Predicted: {perceptron.predict(sample)}")
+weights_input_hidden, bias_hidden, weights_hidden_output, bias_output = train_xor_mlp()
+X_test = np.array([[0, 0], [0, 1], [1, 0], [1, 1]])
+y_pred = predict_xor_mlp(X_test, weights_input_hidden, bias_hidden, weights_hidden_output, bias_output)
+print("Predictions:", y_pred.flatten())
 ```
+This part trains the model and prints the predictions for all XOR inputs.
 
----
+## Expected Output
+The correct XOR output is:
+```
+Predictions: [0 1 1 0]
+```
+However, because we use a **step function**, the network may not always learn correctly. A better activation function like **sigmoid** could improve accuracy.
 
-## What This Code Does
-1. **Creates a Perceptron** with two inputs.
-2. **Trains it** using Gradient Descent on example data.
-3. **Tests it** by predicting outputs for new inputs.
+## Conclusion
+This project shows how a simple neural network with a hidden layer can learn the XOR function. Although step functions make learning difficult, using **sigmoid** or **ReLU** activations could improve results.
 
----
-
-## Summary
-✅ A perceptron is a simple machine learning model.
-✅ It learns using **Gradient Descent** to improve over time.
-✅ It uses an activation function to decide outputs.
-✅ Our example trains the perceptron to predict values.
-
-This is a basic version, but the idea is used in deep learning and AI!
-
-Would you like README files for the last implementation as well? 😊
+## Possible Improvements
+- Use a **sigmoid** activation function instead of a step function.
+- Try a different number of hidden neurons to see how it affects learning.
+- Experiment with different learning rates and epochs to improve accuracy.
 
