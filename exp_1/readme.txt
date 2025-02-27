@@ -1,110 +1,128 @@
-# README: Implementing a Perceptron Using NumPy in Python
+# Perceptron Implementation in Python
 
-## What is a Perceptron?
-A Perceptron is a basic unit of a neural network. It helps a computer learn how to classify things into categories. Think of it as a very simple brain that can make decisions like "yes or no" or "true or false."
+## Overview
+This project implements a **Perceptron** using Python and NumPy. The perceptron is a fundamental unit of an artificial neural network that can solve simple binary classification tasks. In this implementation, the perceptron is trained to learn the **AND logic gate** and then tested for accuracy.
 
-### Example:
-If you teach a perceptron to recognize apples and oranges based on size and color, it will eventually learn to tell them apart!
+## Formula Used
+The perceptron follows the equation:
 
----
+\[ y = f(w \cdot x + b) \]
 
-## How Does a Perceptron Work?
-1. **Takes Inputs**: The perceptron receives inputs (like size and color).
-2. **Applies Weights**: It multiplies each input by a number called a weight.
-3. **Sums Up Everything**: It adds up all the weighted inputs.
-4. **Decides Using an Activation Function**: If the sum is big enough, it outputs 1 (yes), otherwise 0 (no).
-5. **Learns Over Time**: It adjusts the weights by learning from mistakes.
+where:
+- **w** = Weights of the inputs
+- **x** = Input values
+- **b** = Bias term
+- **f** = Activation function (Step function in this case)
+- **y** = Predicted output
 
----
+The step function is defined as:
+\[ f(x) = \begin{cases} 1, & x \geq 0 \\ 0, & x < 0 \end{cases} \]
 
 ## Code Explanation
-
-### Step 1: Import Required Library
-We use NumPy to handle calculations easily.
+### 1. Importing Dependencies
 ```python
 import numpy as np
 ```
+We use **NumPy** for efficient numerical computations.
 
-### Step 2: Define the Perceptron Class
-We create a class that stores:
-- **Weights** (which the perceptron learns over time)
-- **Learning Rate** (how fast it learns)
-- **Epochs** (how many times it repeats learning)
-
+### 2. Creating the Perceptron Class
 ```python
 class Perceptron:
-    def __init__(self, input_size, learning_rate=0.01, epochs=100):
-        self.weights = np.zeros(input_size + 1)  # +1 for bias
+    def __init__(self, input_size, learning_rate=0.1, epochs=100):
+        self.weights = np.random.randn(input_size)  # Initialize random weights
+        self.bias = np.random.randn()  # Initialize random bias
         self.learning_rate = learning_rate
         self.epochs = epochs
 ```
+- `input_size`: Number of input features (2 for an AND gate)
+- `learning_rate`: Controls weight adjustments
+- `epochs`: Number of training iterations
+- `weights`: Randomly initialized weight values
+- `bias`: Randomly initialized bias value
 
-### Step 3: Activation Function
-This function helps the perceptron decide whether to output 1 (yes) or 0 (no).
+### 3. Activation Function
 ```python
     def activation_function(self, x):
-        return 1 if x >= 0 else 0
+        return 1 if x >= 0 else 0  # Step function
 ```
+The **step function** determines whether the perceptron outputs **1** or **0** based on the weighted sum.
 
-### Step 4: Prediction Function
-This function calculates the weighted sum and applies the activation function.
+### 4. Prediction Function
 ```python
     def predict(self, x):
-        x = np.insert(x, 0, 1)  # Insert bias term
-        return self.activation_function(np.dot(self.weights, x))
+        linear_output = np.dot(self.weights, x) + self.bias  # Compute wx + b
+        return self.activation_function(linear_output)
 ```
+- Computes the weighted sum **(wx + b)**
+- Applies the activation function to generate a prediction
 
-### Step 5: Training Function
-This is where the perceptron learns! It adjusts weights based on mistakes.
+### 5. Training Function
 ```python
     def train(self, X, y):
-        X = np.insert(X, 0, 1, axis=1)  # Insert bias term
         for _ in range(self.epochs):
             for i in range(len(y)):
-                prediction = self.activation_function(np.dot(self.weights, X[i]))
+                prediction = self.predict(X[i])
                 error = y[i] - prediction
-                self.weights += self.learning_rate * error * X[i]
+                self.weights += self.learning_rate * error * X[i]  # Adjust weights
+                self.bias += self.learning_rate * error  # Adjust bias
 ```
+- Iterates through training data for `epochs` iterations
+- Computes prediction and error (difference from actual output)
+- Updates weights and bias using **error correction**
 
-### Step 6: Running the Perceptron on Example Data
-We train the perceptron using an **AND logic gate** dataset and check if it learned correctly.
+### 6. Training the Perceptron on AND Gate
 ```python
 if __name__ == "__main__":
+    # Training data for AND gate
     X = np.array([[0, 0], [0, 1], [1, 0], [1, 1]])
-    y = np.array([0, 0, 0, 1])
-    
+    y = np.array([0, 0, 0, 1])  # Expected output for AND gate
+
     perceptron = Perceptron(input_size=2)
     perceptron.train(X, y)
-    
+```
+- Defines input (`X`) and expected output (`y`) for the AND logic gate
+- Trains the perceptron using `train()` function
+
+### 7. Testing the Perceptron
+```python
+    print("Testing Perceptron on AND gate:")
     for sample in X:
-        print(f"Input: {sample}, Predicted: {perceptron.predict(sample)}")
+        print(f"Input: {sample}, Predicted Output: {perceptron.predict(sample)}")
 ```
+- Tests the trained model on all possible inputs
+- Prints the predicted output
+
+## Expected Output
+After training, the perceptron should correctly classify the AND logic gate:
+```
+Testing Perceptron on AND gate:
+Input: [0 0], Predicted Output: 0
+Input: [0 1], Predicted Output: 0
+Input: [1 0], Predicted Output: 0
+Input: [1 1], Predicted Output: 1
+```
+
+## How to Run the Code
+1. Install Python (if not installed)
+2. Save the code as `perceptron.py`
+3. Run the script:
+```bash
+python perceptron.py
+```
+
+## Modifying for Other Logic Gates
+To train the perceptron for other logic gates, modify the `y` array:
+
+- **OR Gate:** `y = np.array([0, 1, 1, 1])`
+- **NAND Gate:** `y = np.array([1, 1, 1, 0])`
+- **NOR Gate:** `y = np.array([1, 0, 0, 0])`
+
+## Conclusion
+This implementation demonstrates how a **single-layer perceptron** can solve linearly separable problems like the AND gate. However, it cannot solve problems like XOR, which require a **multi-layer perceptron**.
+
+Feel free to experiment with different logic gates and learning rates!
 
 ---
-
-## What This Code Does
-1. **Creates a Perceptron** with two inputs.
-2. **Trains it** using the AND logic gate data.
-3. **Tests it** by predicting outputs for all possible inputs.
-
-### Expected Output:
-```
-Input: [0 0], Predicted: 0
-Input: [0 1], Predicted: 0
-Input: [1 0], Predicted: 0
-Input: [1 1], Predicted: 1
-```
-This means the perceptron correctly learned the AND gate logic!
-
----
-
-## Summary
-✅ A perceptron is a simple machine learning model.
-✅ It learns by adjusting weights over time.
-✅ It uses an activation function to decide outputs.
-✅ Our example trained a perceptron using an AND logic gate.
-
-This is the foundation for deep learning and more advanced AI models!
-
-Would you like README files for the other two implementations as well? 😊
+**Author:** Your Name  
+**Date:** YYYY-MM-DD
 
