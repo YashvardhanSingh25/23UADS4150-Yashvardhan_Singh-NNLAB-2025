@@ -1,0 +1,45 @@
+# README: MNIST Classification using TensorFlow
+
+## Overview
+This project implements a neural network using TensorFlow (v1) to classify handwritten digits from the MNIST dataset. The model consists of two hidden layers and uses the sigmoid activation function. Training is performed using the Adam optimizer with a cross-entropy loss function.
+
+## Dataset
+The MNIST dataset consists of 60,000 training images and 10,000 test images of handwritten digits (0-9). Each image is 28x28 pixels, flattened into a 784-dimensional vector.
+
+## Model Architecture
+The neural network consists of:
+- **Input Layer:** 784 neurons (corresponding to 28x28 pixel images)
+- **Hidden Layer 1:** 128 neurons, activated using the sigmoid function
+- **Hidden Layer 2:** 64 neurons, activated using the sigmoid function
+- **Output Layer:** 10 neurons (corresponding to the 10 digit classes)
+
+## Code Explanation
+### Data Loading & Preprocessing
+- The MNIST dataset is loaded using `tf.keras.datasets.mnist.load_data()`.
+- The images are reshaped into 1D vectors and normalized to the range [0,1].
+- Labels are converted to one-hot encoded vectors.
+
+### Model Definition
+- Weights and biases are initialized for each layer.
+- The forward pass is defined using matrix multiplications and activation functions.
+- The final output layer produces logits.
+
+### Training
+- Loss is calculated using `tf.nn.softmax_cross_entropy_with_logits`.
+- The optimizer used is Adam with a learning rate of 0.01.
+- Training runs for 20 epochs with a batch size of 100.
+
+### Evaluation
+- Accuracy is computed as the percentage of correctly classified digits.
+- Final train and test accuracy are displayed after training completion.
+
+## Running the Code
+Ensure that TensorFlow v1 is used. Execute the script in a compatible Python environment to train the model and evaluate its performance.
+
+## Output
+During training, the script prints the loss, training accuracy, and test accuracy at each epoch. After completion, final accuracy values are displayed.
+
+## Notes
+- This implementation uses TensorFlow v1 with `tf.compat.v1` functions.
+- Eager execution is disabled for compatibility with TensorFlow’s static graph execution.
+
